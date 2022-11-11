@@ -1,6 +1,4 @@
 #include <LiquidCrystal.h>
-//#include <TimerOne.h>
-#include <Wire.h>
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
@@ -18,11 +16,6 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 #define Motor_L_pwm_pin       9
 #define Motor_R_pwm_pin       10
 
-#define CMPS14_address 0x60            //define compass
-  byte raw;
-  int bearing=1;
-  int b_1;
-
 int count_L=0;
 int count_R=0;
 // math for counting distance
@@ -32,19 +25,13 @@ const float pi = 3.14;
 float D = 2 * pi * r;
   // here is a small experiment, when this car have full speed, the distance in 254 pluse is 16cm.  week 6
   //float p = 254 * D / 16;                           //how many pulse per round when the wheel move.
-float p = 170;              //? ?????
-double DistancePerPulse = 0.063;
+float p = 270;
+double DistancePerPulse = 0.069;
 double distance_L = 0;                                //distance in cm
 double distance_R = 0;
 
 void isr_L();
 void isr_R();
-//int Timer(int);
-void forward();
-void backward();
-void left();
-void right();
-void stop();
 
 int x,y,xp,xd,ySpeed,yd,pwm_L, pwm_R;                              
 
@@ -72,18 +59,6 @@ void setup()
 
   attachInterrupt(digitalPinToInterrupt(ENC_B_L), isr_L, FALLING);
   attachInterrupt(digitalPinToInterrupt(ENC_B_R), isr_R, FALLING);
-  // Timer1.initialize( 1000000 );           //initialize timer1, and set a 1s period
-  // Timer1.attachInterrupt( Timer ); 
-  Wire.begin();
-  Wire.beginTransmission(CMPS14_address);            //use compass meature degree
-  Wire.write(1);
-  Wire.endTransmission(false);
-  Wire.requestFrom(CMPS14_address,1,true);
-  if(Wire.available()>=1){
-    raw = Wire.read();
-  }
-  bearing = map(raw,0,255,0,365);
-  b_1 = bearing; 
 }
 
 void loop()                    
@@ -133,8 +108,6 @@ void loop()
   lcd.print("for right: ");
   lcd.setCursor(0, 3);
   lcd.print(distance_R);
-
-
     
 }
 

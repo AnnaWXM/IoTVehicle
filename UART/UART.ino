@@ -25,6 +25,7 @@ double DistancePerPulse = 0.069;
 double DPulse=1;
 double distance_L = 0;                                //distance in cm
 double distance_R = 0;
+int distVal = 0;
 
 
 void isr_L();
@@ -67,11 +68,35 @@ void loop()
   //distance_L = count_L * DistancePerPulse ;
   //distance_R = count_R * DistancePerPulse ;
 
+if (Serial.available() > 0){
+    String message = Serial.readStringUntil('\n'); 
+    Serial.print("Message received, content: ");  
+    Serial.println(message);
+    int pos_s = message.indexOf("dist");
+    lcd.setCursor(0, 0);
+    lcd.clear();
+
+    if (pos_s > -1){
+      Serial.println("Command = dist ");
+      pos_s = message.indexOf(":");
+
+      if (pos_s > -1){
+        String stat = message.substring(pos_s + 1);
+        lcd.print(stat);
+        distVal = stat.toInt();
+        Serial.print("Distance:");Serial.println(distVal);
+      }  
+    }
+    else{
+      lcd.print("No message found");
+      Serial.println("No message found, try typing dist:text\n");
+    }
+  }
 
 
-  while (count_L*DistancePerPulse<20) {                    //forward 10cm
+  while (count_L*DistancePerPulse<distVal) {                    //forward 10cm
 
-  Serial.println(count_L*DistancePerPulse);
+  //Serial.println(count_L*DistancePerPulse);
     digitalWrite(Motor_L_dir_pin, 1);
     analogWrite(Motor_L_pwm_pin, 254);
     digitalWrite(Motor_R_dir_pin, 1);
@@ -85,37 +110,7 @@ void loop()
    count_L = 0;
     Serial.println(count_L);
 
-  while (count_L*DistancePerPulse<29) {                                        //turn 180 
-
-    Serial.println(count_L*DistancePerPulse);
-    digitalWrite(Motor_L_dir_pin, 1);
-    analogWrite(Motor_L_pwm_pin, 254);
-    digitalWrite(Motor_R_dir_pin, 1);
-    analogWrite(Motor_R_pwm_pin, 0);
-  }
-
-   analogWrite(Motor_L_pwm_pin, 0);
-    analogWrite(Motor_R_pwm_pin, 0);
-    delay(500);
-
-    count_L = 0;
-    Serial.println(count_L);
-
-    while (count_L*DistancePerPulse<4.3) {                    //backward 10cm
-
-  Serial.println(count_L*DistancePerPulse);
-    digitalWrite(Motor_L_dir_pin, 0);
-    analogWrite(Motor_L_pwm_pin, 254);
-    digitalWrite(Motor_R_dir_pin, 0);
-    analogWrite(Motor_R_pwm_pin, 254);
-  }
-
-    analogWrite(Motor_L_pwm_pin, 0);
-    analogWrite(Motor_R_pwm_pin, 0);
-    delay(500000);
-
-    count_L = 0;
-    Serial.println(count_L);
+    delay(5000);
     
 }
 

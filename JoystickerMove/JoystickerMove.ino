@@ -88,7 +88,7 @@ void loop()
 
 
   float D = 2*pi*r;
-  // here is a small experiment, when this car have full speed, the distance in 254 pluse is 16cm.
+  // here is a small experiment, when this car have full speed, the distance in 254 pluse is 16cm.  23cm for 337 pluse.  18cm for 259 pluse.
   int p = 254*D/16;
 
     lcd.setCursor(0, 0);

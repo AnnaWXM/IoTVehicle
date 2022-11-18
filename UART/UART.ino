@@ -3,7 +3,7 @@
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
 const int rs = 37, en = 36, d4 = 35, d5 = 34, d6 = 33, d7 = 32;
-const int JoyX = A8, JoyY = A9;
+//const int JoyX = A8, JoyY = A9;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 #define ENC_A_L 23 // for direction sensing pin D24
@@ -58,12 +58,13 @@ void setup()
 }
 
 void loop()                    
-{           
-  x = analogRead(JoyX);  
-  y = analogRead(JoyY);  
+{   
+       
+  //x = analogRead(JoyX);  
+  //y = analogRead(JoyY);  
   pwm_L=0, pwm_R=0;                       
-  xd = map(x, 0, 1023, -10, 10);                     // x dirction
-  ySpeed = map(y, 0, 1023, -255, 255);               // y speed, unit in Hz, 1 Hz is 6.28 rad/s, 6.28 Radians in a full circle
+  //xd = map(x, 0, 1023, -10, 10);                     // x dirction
+  //ySpeed = map(y, 0, 1023, -255, 255);               // y speed, unit in Hz, 1 Hz is 6.28 rad/s, 6.28 Radians in a full circle
 
   //distance_L = count_L * DistancePerPulse ;
   //distance_R = count_R * DistancePerPulse ;
@@ -72,45 +73,49 @@ if (Serial.available() > 0){
     String message = Serial.readStringUntil('\n'); 
     Serial.print("Message received, content: ");  
     Serial.println(message);
-    int pos_s = message.indexOf("dist");
+    int pos_s = message.indexOf("Move");
     lcd.setCursor(0, 0);
     lcd.clear();
 
     if (pos_s > -1){
-      Serial.println("Command = dist ");
+      Serial.println("Command = Move ");
       pos_s = message.indexOf(":");
+      String stat = message.substring(pos_s + 1);
+      lcd.print(stat);
+      distVal = stat.toInt();
+      Serial.print("Distance:");
+      Serial.println(distVal);
+      Serial.println("i'm here");
 
-      if (pos_s > -1){
-        String stat = message.substring(pos_s + 1);
-        lcd.print(stat);
-        distVal = stat.toInt();
-        Serial.print("Distance:");Serial.println(distVal);
-      }  
-    }
+      if(distVal > 0){
+        digitalWrite(Motor_L_dir_pin, 1);
+        digitalWrite(Motor_R_dir_pin, 1);
+        Serial.println("Motor_L_dir_pin");
+      }
+      if(distVal < 0){
+        digitalWrite(Motor_L_dir_pin, 0);
+        digitalWrite(Motor_R_dir_pin, 0);
+      }
+
+      while (count_L*DistancePerPulse < distVal) {                    //forward 10cm
+  //Serial.println(count_L*DistancePerPulse);
+        analogWrite(Motor_L_pwm_pin, 254);
+        analogWrite(Motor_R_pwm_pin, 254);
+        Serial.println(count_L);
+      }
+
+      analogWrite(Motor_L_pwm_pin, 0);
+      analogWrite(Motor_R_pwm_pin, 0);
+
+      delay(500);
+
+      count_L = 0;
+    } 
     else{
       lcd.print("No message found");
       Serial.println("No message found, try typing dist:text\n");
     }
   }
-
-
-  while (count_L*DistancePerPulse<distVal) {                    //forward 10cm
-
-  //Serial.println(count_L*DistancePerPulse);
-    digitalWrite(Motor_L_dir_pin, 1);
-    analogWrite(Motor_L_pwm_pin, 254);
-    digitalWrite(Motor_R_dir_pin, 1);
-    analogWrite(Motor_R_pwm_pin, 254);
-  }
-
-    analogWrite(Motor_L_pwm_pin, 0);
-    analogWrite(Motor_R_pwm_pin, 0);
-    delay(500);
-
-   count_L = 0;
-    Serial.println(count_L);
-
-    delay(5000);
     
 }
 

@@ -1,9 +1,7 @@
 #include <LiquidCrystal.h>
 
-// initialize the library by associating any needed LCD interface pin
-// with the arduino pin number it is connected to
 const int rs = 37, en = 36, d4 = 35, d5 = 34, d6 = 33, d7 = 32;
-//const int JoyX = A8, JoyY = A9;
+
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 #define ENC_A_L 23 // for direction sensing pin D24
@@ -26,7 +24,6 @@ double DPulse=1;
 double distance_L = 0;                                //distance in cm
 double distance_R = 0;
 int distVal = 0;
-
 
 void isr_L();
 void isr_R();
@@ -59,15 +56,8 @@ void setup()
 
 void loop()                    
 {   
-       
-  //x = analogRead(JoyX);  
-  //y = analogRead(JoyY);  
+  
   pwm_L=0, pwm_R=0;                       
-  //xd = map(x, 0, 1023, -10, 10);                     // x dirction
-  //ySpeed = map(y, 0, 1023, -255, 255);               // y speed, unit in Hz, 1 Hz is 6.28 rad/s, 6.28 Radians in a full circle
-
-  //distance_L = count_L * DistancePerPulse ;
-  //distance_R = count_R * DistancePerPulse ;
 
 if (Serial.available() > 0){
     String message = Serial.readStringUntil('\n'); 
